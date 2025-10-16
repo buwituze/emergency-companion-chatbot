@@ -6,7 +6,7 @@ A lightweight conversational AI system fine-tuned on emergency medical scenarios
 
 - [Dataset](https://drive.google.com/drive/folders/1LlQiEaPZ6Z_Md_0-70s6I-5DuuvRELKZ?usp=sharing)
 - [Model](https://drive.google.com/drive/folders/1BpC6xuwQ2oWaAU-bhy3uTPLv2qZ0yalT?usp=sharing)
-- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/yourusername/emergency-companion-chatbot/blob/main/Emergency_companion_Summative.ipynb)
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/buwituze/emergency-companion-chatbot/blob/main/Emergency_companion_Summative1.ipynb)
 
 ## Dataset Description
 
@@ -37,8 +37,6 @@ A lightweight conversational AI system fine-tuned on emergency medical scenarios
 - Test samples: 615
 - Train/test split: 85%/15% (stratified by emergency category)
 
----
-
 ## ⚙️ Installation & Setup
 
 ### Prerequisites
@@ -53,7 +51,7 @@ A lightweight conversational AI system fine-tuned on emergency medical scenarios
 
 2. **Open the notebook in Colab**
 
-   - Click: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/yourusername/emergency-companion-chatbot/blob/main/Emergency_companion_Summative.ipynb)
+   - Click: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/buwituze/emergency-companion-chatbot/blob/main/Emergency_companion_Summative1.ipynb)
 
 3. **Run all cells sequentially**
 
@@ -69,7 +67,7 @@ A lightweight conversational AI system fine-tuned on emergency medical scenarios
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/yourusername/emergency-companion-chatbot.git
+git clone https://github.com/buwituze/emergency-companion-chatbot.git
 cd emergency-companion-chatbot
 ```
 
