@@ -1,71 +1,80 @@
 import gradio as gr
-from transformers import T5ForConditionalGeneration, T5Tokenizer
+from transformers import GPT2LMHeadModel, GPT2Tokenizer
 import torch
 
 class ChatbotModel:
-    def __init__(self, model_path="../Model/emergency-companion-model"):
-        """Initialize the T5 model and tokenizer"""
+    def __init__(self, model_path="../Model/emergency-gpt2-final"):
+        """Initialize the DistilGPT-2 model and tokenizer"""
         print("Loading model...")
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         
         try:
-            self.model = T5ForConditionalGeneration.from_pretrained(model_path)
-            self.tokenizer = T5Tokenizer.from_pretrained(model_path)
+            self.tokenizer = GPT2Tokenizer.from_pretrained(model_path)
+            self.model = GPT2LMHeadModel.from_pretrained(model_path)
+            
+            self.tokenizer.pad_token = self.tokenizer.eos_token
+            self.model.config.pad_token_id = self.tokenizer.pad_token_id
+            
             self.model.to(self.device)
             self.model.eval()
             print(f"Model loaded successfully on {self.device}")
+            print(f"Model type: {self.model.config.model_type}")
         except Exception as e:
             print(f"Error loading model: {e}")
             raise
 
-    def generate_response(self, user_input, max_length=512, temperature=0.7, top_p=0.9):
+    def generate_response(self, user_input, max_length=200, temperature=0.8, top_p=0.92):
         """Generate response from user input"""
         if not user_input.strip():
             return "Please enter a message."
         
         try:
-            # Format input based on how the model was trained
-            # Try different formats - adjust based on your training format
-            input_text = user_input  # Simple format - just the question
+            prompt = f"<|user|> {user_input.strip()}<|assistant|>"
             
             inputs = self.tokenizer(
-                input_text,
+                prompt,
                 return_tensors="pt",
-                max_length=512,
+                max_length=128,
                 truncation=True,
-                padding=True
+                padding=False
             ).to(self.device)
             
-            # Generate response
             with torch.no_grad():
                 outputs = self.model.generate(
                     inputs.input_ids,
-                    max_length=max_length,
+                    max_new_tokens=max_length,
                     temperature=temperature,
                     top_p=top_p,
+                    top_k=50,
                     do_sample=True,
-                    num_beams=2,  # Reduced beams
+                    num_beams=4,
                     early_stopping=True,
-                    no_repeat_ngram_size=3,  # Prevent repetition
+                    no_repeat_ngram_size=3,
                     pad_token_id=self.tokenizer.pad_token_id,
-                    eos_token_id=self.tokenizer.eos_token_id
+                    eos_token_id=self.tokenizer.eos_token_id,
+                    repetition_penalty=1.2
                 )
             
-            response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+            generated_text = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
             
-            # Clean up response if it echoes the input
-            if response.lower().startswith("answer:"):
-                response = response[7:].strip()
-            if response.lower() == user_input.lower():
-                response = "I understand your question, but I need more context to provide a helpful answer."
+            if "<|assistant|>" in generated_text:
+                response = generated_text.split("<|assistant|>")[-1].strip()
+            else:
+                response = generated_text.replace(prompt, "").strip()
+            
+            if not response or len(response) < 10:
+                response = "I understand your question. Could you provide more details so I can give you better emergency guidance?"
+            
+            response = response.replace("<|endoftext|>", "").strip()
             
             return response
         
         except Exception as e:
-            return f"Error generating response: {str(e)}"
+            print(f"Error generating response: {e}")
+            return f"I apologize, but I encountered an error. Please try rephrasing your question."
 
 
-# Initialize the chatbot model
+print("Initializing Emergency Companion Chatbot...")
 chatbot_model = ChatbotModel()
 
 def chat_function(message, history, max_length, temperature, top_p):
@@ -79,14 +88,28 @@ def chat_function(message, history, max_length, temperature, top_p):
     return response
 
 
-# Create Gradio interface
-with gr.Blocks(title="Emergency Companion Chatbot", theme=gr.themes.Soft()) as demo:
-    gr.Markdown(
+custom_css = """
+.gradio-container {
+    font-family: 'Arial', sans-serif;
+}
+.emergency-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+    text-align: center;
+    margin-bottom: 20px;
+}
+"""
+
+with gr.Blocks(title="Emergency Companion Chatbot", theme=gr.themes.Soft(), css=custom_css) as demo:
+    gr.HTML(
         """
-        # 🤖 Emergency Companion Chatbot
-        ### Powered by Fine-tuned T5 Model
-        
-        Ask me anything - I'm here to help with emergency support and companionship.
+        <div class="emergency-header">
+            <h1>Emergency Companion Chatbot</h1>
+            <p style="font-size: 16px; margin-top: 10px;">Powered by Fine-tuned DistilGPT-2 Model</p>
+            <p style="font-size: 14px; opacity: 0.9;">Get immediate first aid guidance and emergency support</p>
+        </div>
         """
     )
     
@@ -97,46 +120,47 @@ with gr.Blocks(title="Emergency Companion Chatbot", theme=gr.themes.Soft()) as d
                 height=500,
                 show_label=True,
                 avatar_images=(None, "🤖"),
-                type="messages"
+                type="messages",
+                bubble_full_width=False
             )
             
             with gr.Row():
                 msg = gr.Textbox(
-                    label="Your Message",
-                    placeholder="Type your message here...",
+                    label="Your Emergency Question",
+                    placeholder="e.g., How do I treat a cut? What to do for a fever?",
                     lines=2,
                     scale=4
                 )
-                submit = gr.Button("Send", variant="primary", scale=1)
+                submit = gr.Button("Send 📤", variant="primary", scale=1)
             
             with gr.Row():
-                clear = gr.Button("Clear Conversation")
+                clear = gr.Button("Clear Chat 🗑️", variant="secondary")
                 
         with gr.Column(scale=1):
             gr.Markdown("### ⚙️ Generation Settings")
             
             max_length = gr.Slider(
                 minimum=50,
-                maximum=512,
-                value=256,
+                maximum=300,
+                value=150,
                 step=10,
                 label="Max Response Length",
-                info="Maximum number of tokens in response"
+                info="Maximum new tokens to generate"
             )
             
             temperature = gr.Slider(
-                minimum=0.1,
-                maximum=2.0,
-                value=0.7,
+                minimum=0.3,
+                maximum=1.5,
+                value=0.8,
                 step=0.1,
                 label="Temperature",
                 info="Higher = more creative, Lower = more focused"
             )
             
             top_p = gr.Slider(
-                minimum=0.1,
+                minimum=0.5,
                 maximum=1.0,
-                value=0.9,
+                value=0.92,
                 step=0.05,
                 label="Top P (Nucleus Sampling)",
                 info="Diversity of token selection"
@@ -145,10 +169,27 @@ with gr.Blocks(title="Emergency Companion Chatbot", theme=gr.themes.Soft()) as d
             gr.Markdown(
                 """
                 ---
-                ### 💡 Tips
-                - Adjust temperature for creativity
-                - Lower temperature for factual responses
-                - Higher temperature for varied outputs
+                ### Usage Tips
+                - **For medical emergencies**: Be specific about symptoms
+                - **Temperature**: Use 0.7-0.9 for emergency advice
+                - **Lower temperature**: More factual, focused responses
+                - **Higher temperature**: More varied phrasing
+                
+                ---
+                ### Disclaimer
+                This is an AI assistant for **informational purposes only**.
+                For serious emergencies, always call emergency services (911).
+                """
+            )
+            
+            gr.Markdown(
+                """
+                ---
+                ### Model Info
+                - **Architecture**: DistilGPT-2
+                - **Parameters**: 82M
+                - **BLEU Score**: 0.18
+                - **ROUGE-L**: 0.30
                 """
             )
     
@@ -187,19 +228,39 @@ with gr.Blocks(title="Emergency Companion Chatbot", theme=gr.themes.Soft()) as d
     
     gr.Examples(
         examples=[
-            "I'm feeling anxious, can you help?",
-            "What should I do in an emergency?",
-            "I need someone to talk to",
-            "Can you give me some advice?",
+            "How do I treat a severe cut?",
+            "What should I do if someone is choking?",
+            "Snake bite emergency - what are the steps?",
+            "I have a high fever, what to do?",
+            "How to treat a sprained ankle?",
+            "Severe burn treatment steps",
+            "Someone is drowning, help!",
+            "How to perform CPR?",
+            "Nosebleed won't stop",
+            "Heat stroke symptoms and treatment",
         ],
         inputs=msg,
-        label="Example Messages"
+        label="📋 Example Emergency Questions"
+    )
+    
+    gr.Markdown(
+        """
+        ---
+        <center>
+        <p style="color: #666; font-size: 12px;">
+        Emergency Companion Chatbot v1.0 | Trained on 4,095 Emergency Response Samples
+        </p>
+        </center>
+        """
     )
 
 if __name__ == "__main__":
+    print("Launching Emergency Companion Chatbot Interface")
+    print("-"*70)
     demo.launch(
         server_name="127.0.0.1",
         server_port=7860,
         share=False,
-        debug=True
+        debug=True,
+        show_error=True
     )
