@@ -1,6 +1,6 @@
 # Emergency Companion Chatbot
 
-A lightweight conversational AI system fine-tuned on emergency medical scenarios to provide immediate first aid guidance and preparedness information during critical situations.
+A conversational AI system fine-tuned on emergency medical scenarios to provide immediate first aid guidance and preparedness information during critical situations.
 
 ### Links:
 
@@ -37,7 +37,7 @@ A lightweight conversational AI system fine-tuned on emergency medical scenarios
 - Test samples: 615
 - Train/test split: 85%/15% (stratified by emergency category)
 
-## ⚙️ Installation & Setup
+## Installation & Setup
 
 ### Prerequisites
 
@@ -219,14 +219,14 @@ emergency-companion-chatbot/
 - Generated responses may occasionally lack specificity
 - Not validated by medical professionals for clinical accuracy
 
-## 🔮 Future Improvements
+## Future Improvements
 
-- [ ] Integrate Retrieval-Augmented Generation (RAG) for updated medical guidelines
-- [ ] Add multilingual support for non-English speakers
 - [ ] Implement emergency service geolocation and auto-dialing
 - [ ] Include image recognition for injury assessment
 - [ ] Expand dataset to cover 200+ emergency scenarios
 - [ ] Add voice interface for hands-free operation
 - [ ] Medical expert validation and certification
+- [ ] Add multilingual support for non-English speakers
+- [ ] Look into Retrieval-Augmented Generation (RAG)
 
 **⭐ If this project helps you, please star the repository!**
