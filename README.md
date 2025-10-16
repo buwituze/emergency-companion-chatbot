@@ -114,9 +114,11 @@ deactivate
 
 ---
 
+![ui app](<Screenshot 2025-10-16 235911.png>)
+
 ## Example Queries & Responses
 
-![Sample Chatbot Interactions](./assets/examples_screenshot.png)
+![example of interactions](image.png)
 
 ### Quick Test Queries
 
