@@ -10,7 +10,7 @@ A conversational AI system fine-tuned on emergency medical scenarios to provide 
 
 ## Dataset Description
 
-**Source:** Custom emergency response dataset (`intents.json`) containing 56 medical emergency categories
+**Source:** https://www.kaggle.com/datasets/mahmoudahmed6/first-aid-intents-dataset
 
 **Access:** [Download from Google Drive](https://drive.google.com/drive/folders/1LlQiEaPZ6Z_Md_0-70s6I-5DuuvRELKZ?usp=sharing)
 

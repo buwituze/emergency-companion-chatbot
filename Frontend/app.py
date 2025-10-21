@@ -107,7 +107,6 @@ with gr.Blocks(title="Emergency Companion Chatbot", theme=gr.themes.Soft(), css=
         """
         <div class="emergency-header">
             <h1>Emergency Companion Chatbot</h1>
-            <p style="font-size: 16px; margin-top: 10px;">Powered by Fine-tuned DistilGPT-2 Model</p>
             <p style="font-size: 14px; opacity: 0.9;">Get immediate first aid guidance and emergency support</p>
         </div>
         """
@@ -134,10 +133,10 @@ with gr.Blocks(title="Emergency Companion Chatbot", theme=gr.themes.Soft(), css=
                 submit = gr.Button("Send 📤", variant="primary", scale=1)
             
             with gr.Row():
-                clear = gr.Button("Clear Chat 🗑️", variant="secondary")
+                clear = gr.Button("Clear Chat", variant="secondary")
                 
         with gr.Column(scale=1):
-            gr.Markdown("### ⚙️ Generation Settings")
+            gr.Markdown("### Generation Settings")
             
             max_length = gr.Slider(
                 minimum=50,
@@ -178,20 +177,10 @@ with gr.Blocks(title="Emergency Companion Chatbot", theme=gr.themes.Soft(), css=
                 ---
                 ### Disclaimer
                 This is an AI assistant for **informational purposes only**.
-                For serious emergencies, always call emergency services (911).
+                For serious emergencies, always call national emergency services (112, 911, etc).
                 """
             )
             
-            gr.Markdown(
-                """
-                ---
-                ### Model Info
-                - **Architecture**: DistilGPT-2
-                - **Parameters**: 82M
-                - **BLEU Score**: 0.18
-                - **ROUGE-L**: 0.30
-                """
-            )
     
     def respond(message, chat_history, max_len, temp, top_p_val):
         """Handle user message and generate bot response"""
@@ -240,7 +229,7 @@ with gr.Blocks(title="Emergency Companion Chatbot", theme=gr.themes.Soft(), css=
             "Heat stroke symptoms and treatment",
         ],
         inputs=msg,
-        label="📋 Example Emergency Questions"
+        label="Example Emergency Questions"
     )
     
     gr.Markdown(
@@ -248,7 +237,7 @@ with gr.Blocks(title="Emergency Companion Chatbot", theme=gr.themes.Soft(), css=
         ---
         <center>
         <p style="color: #666; font-size: 12px;">
-        Emergency Companion Chatbot v1.0 | Trained on 4,095 Emergency Response Samples
+        Emergency Companion Chatbot v1.0
         </p>
         </center>
         """
